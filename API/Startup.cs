@@ -52,7 +52,7 @@ namespace API
             app.UseRouting();
 
             // right place to add is here, after routing, before auth
-            app.UseCors(policy => policy.AllowAnyHeader().AllowAnyHeader().WithOrigins("https://localhost:4200"));
+            app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
 
             // UseCors before UseAuthentication before UseAuthorization
             app.UseAuthentication();
