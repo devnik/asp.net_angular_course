@@ -18,9 +18,11 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       catchError(error => {
+        console.log(error);
         if (error) {
           switch (error.status) {
             case 400:
+            case 401:
               if (error.error.errors) {
                 const modalStateErrors = [];
                 for (const key in error.error.errors) {
@@ -29,13 +31,16 @@ export class ErrorInterceptor implements HttpInterceptor {
                   }
                 }
                 throw modalStateErrors.flat();
-              } else {
+              } else if (typeof(error.error) === 'object') {
                 this.toastr.error(error.statusText, error.status);
+              } else {
+                console.log("here")
+                this.toastr.error(error.error, error.status);
               }
               break;
-            case 401:
-              this.toastr.error(error.statusText, error.status);
-              break;
+            // case 401:
+            //   this.toastr.error(error.statusText, error.status);
+            //   break;
             case 404:
               this.router.navigateByUrl('/not-found');
               break;

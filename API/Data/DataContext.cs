@@ -5,24 +5,34 @@ namespace API.Data
 {
     public class DataContext : DbContext
     {
-        // // https://stackoverflow.com/questions/57745481/unable-to-create-an-object-of-type-mycontext-for-the-different-patterns-suppo
-        // public DataContext()
-        // {
-        // }
-
         public DataContext(DbContextOptions options) : base(options)
         {
         }
 
-        // // https://stackoverflow.com/questions/57745481/unable-to-create-an-object-of-type-mycontext-for-the-different-patterns-suppo
-        // protected override void OnConfiguring(DbContextOptionsBuilder options)
-        // {
-        //     if (!options.IsConfigured)
-        //     {
-        //         options.UseSqlite("Data source=datingapp.db");
-        //     }
-        // }
+        public DbSet<AppUser> Users { get; set; } // db set for photos not needed
+        public DbSet<UserLike> Likes { get; set; } // join table name = Likes
 
-        public DbSet<AppUser> Users { get; set; }
+        // entity config
+        protected override void OnModelCreating(ModelBuilder builder) {
+            base.OnModelCreating(builder);
+
+            // primary key
+            builder.Entity<UserLike>().HasKey(k => new {k.SourceUserId, k.LikedUserId});
+
+            // yung liker, maraming like
+            builder.Entity<UserLike>()
+                .HasOne(s => s.SourceUser) // UserLike.cs
+                .WithMany(l => l.LikedUsers) // AppUser.cs
+                .HasForeignKey(s => s.SourceUserId) // UserLike.cs
+                .OnDelete(DeleteBehavior.Cascade); // SQL Server = DeleteBehavior.NoAction or you will get migration error
+
+            // yung ni-liked, maraming liker
+            builder.Entity<UserLike>()
+                .HasOne(s => s.LikedUser) // UserLike.cs
+                .WithMany(l => l.LikedByUsers) // AppUser.cs
+                .HasForeignKey(s => s.LikedUserId) // UserLike.cs
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
     }
 }
