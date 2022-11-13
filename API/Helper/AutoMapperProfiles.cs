@@ -22,6 +22,12 @@ namespace API.Helper
             CreateMap<MemberUpdateDTO, AppUser>();
 
             CreateMap<RegisterDTO, AppUser>();
+
+            // from message to msg DTO
+            // add config for user photo, limited capability of automapper
+            CreateMap<Message, MessageDTO>()
+                .ForMember(dest => dest.SenderPhotoUrl, opt => opt.MapFrom(src => src.Sender.Photos.FirstOrDefault(x => x.IsMain).Url))
+                .ForMember(dest => dest.RecipientPhotoUrl, opt => opt.MapFrom(src => src.Recipient.Photos.FirstOrDefault(x => x.IsMain).Url));
         }
     }
 }
